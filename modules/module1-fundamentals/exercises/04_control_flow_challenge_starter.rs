@@ -1,74 +1,128 @@
-use std::io;
+use std::io::{self, Write};
 
-fn main() {
-    // Part 1: FizzBuzz Implementation
-    println!("=== FizzBuzz Challenge ===");
-    
-    // TODO: Implement the FizzBuzz algorithm for numbers 1 to 20
-    for i in 1..=20 {
-        // TODO: Check if i is divisible by both 3 and 5
-        // TODO: Check if i is divisible by 3
-        // TODO: Check if i is divisible by 5
-        // TODO: Print the number if it's not divisible by 3 or 5
+/// Represents the available calculator operations
+#[derive(Debug)]
+enum Operation {
+    Add,
+    Subtract,
+    Multiply,
+    Divide,
+    Exit,
+}
+
+impl Operation {
+    fn from_u32(value: u32) -> Option<Operation> {
+        match value {
+            1 => Some(Operation::Add),
+            2 => Some(Operation::Subtract),
+            3 => Some(Operation::Multiply),
+            4 => Some(Operation::Divide),
+            5 => Some(Operation::Exit),
+            _ => None,
+        }
     }
-    
-    // Part 2: Menu-driven Calculator
+}
+
+/// Prints FizzBuzz sequence for numbers 1 to n
+fn print_fizzbuzz(n: u32) {
+    println!("=== FizzBuzz Challenge ===");
+    for i in 1..=n {
+        let output = match (i % 3, i % 5) {
+            (0, 0) => String::from("FizzBuzz"),
+            (0, _) => String::from("Fizz"),
+            (_, 0) => String::from("Buzz"),
+            (_, _) => i.to_string(),
+        };
+        println!("{}", output);
+    }
+}
+
+/// Reads a number from standard input with type conversion
+fn read_number<T>(prompt: &str) -> T 
+where 
+    T: std::str::FromStr,
+    T::Err: std::fmt::Debug,
+{
+    loop {
+        print!("{}", prompt);
+        io::stdout().flush().expect("Failed to flush stdout");
+        
+        let mut input = String::new();
+        io::stdin()
+            .read_line(&mut input)
+            .expect("Failed to read input");
+            
+        match input.trim().parse() {
+            Ok(num) => return num,
+            Err(_) => println!("Invalid input. Please enter a valid number."),
+        }
+    }
+}
+
+/// Performs the calculator operation
+fn perform_operation(op: Operation, num1: f64, num2: f64) -> Option<f64> {
+    match op {
+        Operation::Add => Some(num1 + num2),
+        Operation::Subtract => Some(num1 - num2),
+        Operation::Multiply => Some(num1 * num2),
+        Operation::Divide => {
+            if num2 == 0.0 {
+                println!("Error: Cannot divide by zero.");
+                None
+            } else {
+                Some(num1 / num2)
+            }
+        },
+        Operation::Exit => None,
+    }
+}
+
+/// Runs the calculator program
+fn run_calculator() {
     println!("\n=== Calculator ===");
     
-    // TODO: Create a variable to control the calculator loop
-    let mut running = true;
-    
-    // TODO: Implement the calculator loop
-    while running {
-        // TODO: Show the menu options
-        println!("Choose an operation:");
+    loop {
+        println!("\nChoose an operation:");
         println!("1. Add");
         println!("2. Subtract");
         println!("3. Multiply");
         println!("4. Divide");
         println!("5. Exit");
         
-        // TODO: Get the user's choice
-        let mut choice = String::new();
-        // TODO: Read user input
+        let choice: u32 = read_number("Enter your choice: ");
         
-        // TODO: Convert choice to a number (with error handling)
-        let choice: u32 = match choice.trim().parse() {
-            Ok(num) => num,
-            Err(_) => {
-                println!("Invalid input. Please enter a number.");
+        let operation = match Operation::from_u32(choice) {
+            Some(Operation::Exit) => break,
+            Some(op) => op,
+            None => {
+                println!("Invalid option. Please try again.");
                 continue;
             }
         };
         
-        // TODO: Exit if the user chose option 5
-        if choice == 5 {
-            // TODO: Set running to false to exit the loop
-            break;
+        let num1: f64 = read_number("Enter the first number: ");
+        let num2: f64 = read_number("Enter the second number: ");
+        
+        if let Some(result) = perform_operation(operation, num1, num2) {
+            println!("Result: {:.2}", result);
         }
         
-        // TODO: Get the two input numbers from the user
-        // First number
-        // TODO: Read first number
-        
-        // Second number
-        // TODO: Read second number
-        
-        // TODO: Perform the selected operation using match or if statements
-        // match choice {
-        //    1 => // Handle addition
-        //    2 => // Handle subtraction
-        //    3 => // Handle multiplication
-        //    4 => // Handle division (remember to check for division by zero)
-        //    _ => println!("Invalid option. Please try again."),
-        // }
-        
-        // TODO: Ask if the user wants to perform another calculation
-        println!("Do you want to perform another calculation? (y/n): ");
-        // TODO: Read user's response
-        
-        // TODO: Set running to false if the user doesn't want to continue
+        print!("Do you want to perform another calculation? (y/n): ");
+        io::stdout().flush().expect("Failed to flush stdout");
+        let mut again = String::new();
+        io::stdin()
+            .read_line(&mut again)
+            .expect("Failed to read input");
+            
+        if again.trim().to_lowercase() != "y" {
+            break;
+        }
     }
     
     println!("Thank you for using the calculator!");
+}
+
+fn main() {
+    print_fizzbuzz(20);
+    run_calculator();
 }
