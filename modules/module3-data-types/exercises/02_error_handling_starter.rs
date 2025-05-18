@@ -2,9 +2,6 @@ use std::num::ParseIntError;
 use std::fmt;
 
 // Part 1: Configuration Parser
-// Create a configuration struct and parser that returns Results
-
-// Config struct - already defined
 #[derive(Debug)]
 struct Config {
     username: String,
@@ -12,7 +9,6 @@ struct Config {
     max_retries: u32,
 }
 
-// Custom error type for configuration parsing errors - already defined with variants
 #[derive(Debug)]
 enum ConfigError {
     MissingField(String),
@@ -20,7 +16,6 @@ enum ConfigError {
     InvalidRetryCount(String),
 }
 
-// Display implementation for ConfigError - just needs message content
 impl fmt::Display for ConfigError {
     fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
         match self {
@@ -31,17 +26,15 @@ impl fmt::Display for ConfigError {
     }
 }
 
-// Parse configuration string function - implementation needed
 fn parse_config(config_str: &str) -> Result<Config, ConfigError> {
     let mut username = None;
     let mut timeout = None;
     let mut max_retries = None;
 
-    // Split the configuration string by commas and process each key-value pair
     for pair in config_str.split(',') {
         let parts: Vec<&str> = pair.split('=').collect();
         if parts.len() != 2 {
-            continue; // Skip invalid pairs
+            continue;
         }
 
         let key = parts[0].trim();
@@ -61,7 +54,7 @@ fn parse_config(config_str: &str) -> Result<Config, ConfigError> {
                     Err(_) => return Err(ConfigError::InvalidRetryCount(value.to_string())),
                 }
             },
-            _ => {} // Ignore unknown keys
+            _ => {}
         }
     }
 
@@ -77,8 +70,6 @@ fn parse_config(config_str: &str) -> Result<Config, ConfigError> {
 }
 
 // Part 2: Safe String to Integer Conversion
-// Create a function that safely converts a string to an integer
-
 fn parse_number(s: &str) -> Option<i32> {
     match s.parse::<i32>() {
         Ok(number) => Some(number),
@@ -87,9 +78,6 @@ fn parse_number(s: &str) -> Option<i32> {
 }
 
 // Part 3: Data Validation with Custom Errors
-// Implement a user data validator with multiple error types
-
-// User struct - already defined
 #[derive(Debug)]
 struct User {
     id: u32,
@@ -97,7 +85,6 @@ struct User {
     age: u32,
 }
 
-// ValidationError enum - already defined with variants
 #[derive(Debug)]
 enum ValidationError {
     InvalidId,
@@ -105,39 +92,33 @@ enum ValidationError {
     InvalidAge,
 }
 
-// Display implementation for ValidationError
 impl fmt::Display for ValidationError {
     fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
         match self {
-            ValidationError::InvalidId => write!(f, /* TODO */),
-            ValidationError::NameTooShort => write!(f, /* TODO */),
-            ValidationError::InvalidAge => write!(f, /* TODO */),
+            ValidationError::InvalidId => write!(f, "ID must be greater than 0"),
+            ValidationError::NameTooShort => write!(f, "Name too short, minimum length is 2 characters"),
+            ValidationError::InvalidAge => write!(f, "Age must be at least 18"),
         }
     }
 }
 
-// Validate user function - partially implemented
 fn validate_user(user: &User) -> Result<(), ValidationError> {
-    // Check ID validity
     if user.id == 0 {
-        return /* TODO */;
+        return Err(ValidationError::InvalidId);
     }
     
     if user.name.len() < 2 {
-        return /* TODO */;
+        return Err(ValidationError::NameTooShort);
     }
     
     if user.age < 18 {
-        return /* TODO */;
+        return Err(ValidationError::InvalidAge);
     }
     
     Ok(())
 }
 
 // Part 4: Error Propagation Chain
-// Create a series of functions that use the ? operator to propagate errors
-
-// ProcessError type
 #[derive(Debug)]
 enum ProcessError {
     ConfigError(ConfigError),
@@ -145,7 +126,6 @@ enum ProcessError {
     ValidationError(ValidationError),
 }
 
-// From implementations for automatic conversions
 impl From<ConfigError> for ProcessError {
     fn from(err: ConfigError) -> Self {
         ProcessError::ConfigError(err)
@@ -174,7 +154,6 @@ impl fmt::Display for ProcessError {
     }
 }
 
-// Process data function - needs implementation with ? operator
 fn process_data(config_str: &str, user_id: &str, user_name: &str, user_age: &str) -> Result<(), ProcessError> {
     let config = parse_config(config_str)?;
     
@@ -224,7 +203,6 @@ fn main() {
     
     // Part 3: Test the user validation
     println!("\n--- Part 3: User Validation ---");
-    // Create and test valid and invalid users
     let valid_user = User {
         id: 1001,
         name: String::from("Charlie"),
@@ -233,14 +211,14 @@ fn main() {
     
     let invalid_user1 = User {
         id: 1002,
-        name: String::from("D"), // Too short
+        name: String::from("D"),
         age: 30,
     };
     
     let invalid_user2 = User {
         id: 1003,
         name: String::from("Eve"),
-        age: 17, // Too young
+        age: 17,
     };
     
     println!("Validating user: {:?}", valid_user);
@@ -267,7 +245,7 @@ fn main() {
         ("username=charlie,timeout=30,max_retries=5", "1001", "Charlie", "25"),
         ("username=diana,timeout=invalid,max_retries=5", "1002", "Diana", "30"),
         ("username=eve,timeout=30,max_retries=5", "invalid_id", "Eve", "22"),
-        ("username=frank,timeout=30,max_retries=5", "1004", "F", "17"), // Invalid name (too short)
+        ("username=frank,timeout=30,max_retries=5", "1004", "F", "17"),
     ];
     
     for (config, id, name, age) in test_cases.iter() {

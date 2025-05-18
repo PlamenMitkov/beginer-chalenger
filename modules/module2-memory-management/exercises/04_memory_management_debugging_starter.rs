@@ -58,7 +58,7 @@ fn problem3() {
 }
 
 fn get_string() -> String {    // Return owned String
-    String::from("I am no longer a dangling reference")
+    String::from("I am a dangling reference")
 }
 
 // Problem 4: Fix lifetime problems
