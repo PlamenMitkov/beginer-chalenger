@@ -83,4 +83,4 @@ name = "module7_01"
 path = "modules/module7-icp-integration/exercises/01_hello_icp_starter.rs"
 
 [workspace]
-members = []
+members = ["ecommerce"]
